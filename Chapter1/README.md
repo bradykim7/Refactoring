@@ -19,14 +19,14 @@
 
 Digram that shows Class's relationship
 
-<img src="./ch1-1.png" width="650px" height="auto" align="center"></img>
+<img src=".image/ch1-1.png" width="650px" height="auto" align="center"></img>
 
 
 Statement 메소드의 호출관계
 
 Statement Method's  Diagram
 
-<img src="./ch1-2.png" width="650px" height="auto" align="center"></img>
+<img src=".image/ch1-2.png" width="650px" height="auto" align="center"></img>
 
 
 

@@ -71,12 +71,14 @@ public class Customer {
         String result = getName()+ " 고객님의 대여 기록\n";
 
         while(rentals.hasMoreElements()){
-            double thisAmount=0;
+            // #3 불필요한 변수의 제거
+            //double thisAmount=0;
             Rental each = (Rental) rentals.nextElement();
             // 바뀐 부분 #1
             // thisAmount = amountFor(each);
             // 재수정 #2
-            thisAmount = each.getCharge();
+            // #3 불필요한 변수를 제거한다.
+            // thisAmount = each.getCharge();
 
             // 적립 포인트를 1 포인트 증가
             frequentRenterPoints++;
@@ -85,8 +87,8 @@ public class Customer {
                 frequentRenterPoints++;
 
             // 대여하는 비디오의 정보와 대여료를 출력
-            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(thisAmount)+'\n';
-            totalAmount+=thisAmount;
+            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(each.getCharge())+'\n';
+            totalAmount+=each.getCharge();
 
         }
         result += "누적 대여료:" + String.valueOf(totalAmount)+'\n';

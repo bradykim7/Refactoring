@@ -17,7 +17,7 @@
 
 클래스 간의 관계를 나타낸 다이어그램
 
-Digram that shows Class's relationship
+Diagram that shows Class's relationship
 
 <img src="image/ch1-1.png" width="650px" height="auto" align="center"></img>
 
@@ -239,9 +239,59 @@ public class Customer {
 > 1. 변수의 활용 즉, 불변하는 변수는 매개변수로 활용한다.
 > 2. 프로그램을 단계적으로 조금씩 수정한다.
 > 3. 부적절한 변수명의 교체, 실력있는 프로그래머라면 인간이 이해할 수 있는 코드를 작성한다. 컴퓨터가 아닌...
+> 4. 불필요한 변수를 삭제, 즉 변수를 메소드 호출로 전환한다.
+>
 
 다음 으로는 대여료 계산 메소드를 옮긴다. 즉 Customer class 안에 있음에도 불구하고 customer class의 정보는 사용하지 않음으로, 
 이를 실질적인 데이터를 활용하는 Rental class로 이동한다.
 
+Change Method를 옮긴 후 클래스 관계의 변화이다.
+
+
+<img src="image/ch1-3.png" width="650px" height="auto" align="center"></img>
+
+
+이 후, 수정할 부분은 thisAmount의 변수를 수정할 것 인데, 이는 불필요한 중복이 있기 때문이다. thisAmount의 변수는 each.charge
+메서드의 결과를 저장하는데만 사용하고, 그 후에는 전혀 사용되지 않기 때문이다.
+
+
+statement()의 수정.
+
+
 <pre>
+
+public String statement(){
+    double totalAmount =0;
+    int frequentRenterPoints =0;
+    Enumeration rentals = _rentals.elements();
+    String result = getName()+ " 고객님의 대여 기록\n";
+
+    while(rentals.hasMoreElements()){
+        // #3 불필요한 변수의 제거
+        //double thisAmount=0;
+        Rental each = (Rental) rentals.nextElement();
+        // 바뀐 부분 #1
+        // thisAmount = amountFor(each);
+        // 재수정 #2
+        // #3 불필요한 변수를 제거한다.
+        // thisAmount = each.getCharge();
+
+        // 적립 포인트를 1 포인트 증가
+        frequentRenterPoints++;
+        // 최신물을 2일 이상 대여할 경우 보너스 포인트 지급
+        if((each.getMovie().getPriceCode()  == Movie.NEW_RELEASE) && each.getDaysRented() >1)
+            frequentRenterPoints++;
+
+        // 대여하는 비디오의 정보와 대여료를 출력
+        result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(each.getCharge())+'\n';
+        totalAmount+=each.getCharge();
+
+    }
+    result += "누적 대여료:" + String.valueOf(totalAmount)+'\n';
+    result += "적립 포인트:" + String.valueOf(frequentRenterPoints);
+    return result;
+}
+
 </pre>
+
+44p부터  

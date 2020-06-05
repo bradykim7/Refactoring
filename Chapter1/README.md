@@ -240,7 +240,8 @@ public class Customer {
 > 2. 프로그램을 단계적으로 조금씩 수정한다.
 > 3. 부적절한 변수명의 교체, 실력있는 프로그래머라면 인간이 이해할 수 있는 코드를 작성한다. 컴퓨터가 아닌...
 > 4. 불필요한 변수를 삭제, 즉 변수를 메소드 호출로 전환한다.
->
+> 5. 메서드 추출 기법을 통해 메서드 이
+> 6. 임시 변수 없애기 ! 
 
 다음 으로는 대여료 계산 메소드를 옮긴다. 즉 Customer class 안에 있음에도 불구하고 customer class의 정보는 사용하지 않음으로, 
 이를 실질적인 데이터를 활용하는 Rental class로 이동한다.
@@ -294,4 +295,172 @@ public String statement(){
 
 </pre>
 
-44p부터  
+이제는 적립 포인트도 마찬가지로 메서드로 빼낸 후에 옮겨야 한다. 
+
+그림 설명 ! 
+
+적립포인트 계산 코드를 메소드로 빼서 옮기기 전 클래스 간의 관계
+
+
+<img src="image/ch1-4.png" width="650px" height="auto" align="center"></img>
+
+
+적립포인트 계산 코드를 메소드로 빼서 옮기기 전 상호작 다이어그램
+
+
+<img src="image/ch1-5.png" width="650px" height="auto" align="center"></img>
+
+
+적립포인트 계산 코드를 메서드로 빼서 옮긴 후 클래스 관계
+
+
+<img src="image/ch1-6.png" width="650p용x" height="auto" align="center"></img>
+
+
+적립포인트 계산 코드를 메서드로 빼서 옮긴 후 상호작용 다이어그램
+
+
+<img src="image/ch1-7.png" width="650px" height="auto" align="center"></img>
+
+
+자자 이제 좀 정리가 된 것 같다. 하지만 아직도 리펙토링 할 사항들이 넘치고 넘친다. 다음으로 임시변수를 없애보도록 하겠다. 지금 총 2개의 임시변수가 존재하며, 두 변수는 해당 고객에 첨가된 대여료를 이용해
+총 대여료를 계산할 때 사용한다. 이를 메소드 호출 전환 기법을 실시해서 변수를 질의 메소드로 고치는 것을 선호한다고한다.
+
+
+바뀌기 전의 코드
+<pre>
+public String statement(){
+    double totlaAmout =0;
+    int frequentRenterPoints = 0;
+    Enumeration rentals = _rentals.elements();
+    String result = getName() + " 고객님의 대여 기록\n";
+    while(rentals.hasMoreElements()){
+        Rental each = (Rental) rentals.nextElement();
+        
+        frequentRenterPoints += each.getFrequentRenterPoints();
+        
+        result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(each.getCharge())+'\n';
+        totalAmoiunt += each.getCharge();
+    }
+    
+        result += "누적 대여료:" + String.valueOf(totalAmount)+'\n';
+        result += "적립 포인트:" + String.valueOf(frequentRenterPoints);
+        return result;
+}
+
+</pre>
+
+
+바뀐 후의 코드
+
+<pre>
+public String statement(){
+        // totalAmount 변수를  getTotalCharge 메소드로 교체
+        // double totalAmount =0;
+        int frequentRenterPoints =0;
+        Enumeration rentals = _rentals.elements();
+        String result = getName()+ " 고객님의 대여 기록\n";
+
+        while(rentals.hasMoreElements()){
+            // #3 불필요한 변수의 제거
+            //double thisAmount=0;
+            Rental each = (Rental) rentals.nextElement();
+            // 바뀐 부분 #1
+            // thisAmount = amountFor(each);
+            // 재수정 #2
+            // #3 불필요한 변수를 제거한다.
+            // thisAmount = each.getCharge();
+
+            /*
+            // 적립 포인트를 1 포인트 증가
+            frequentRenterPoints++;
+            // 최신물을 2일 이상 대여할 경우 보너스 포인트 지급
+            if((each.getMovie().getPriceCode()  == Movie.NEW_RELEASE) && each.getDaysRented() >1)
+                frequentRenterPoints++;
+            */
+
+            // 위의 적립 포인트 메소드를 Rental로 이동 후 코드
+            frequentRenterPoints += each.getFrequentRenterPoints();
+
+            // 대여하는 비디오의 정보와 대여료를 출력
+            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(getTotalCharge())+'\n';
+
+        }
+
+        result += "누적 대여료:" + String.valueOf(getTotalCharge())+'\n';
+        result += "적립 포인트:" + String.valueOf(frequentRenterPoints);
+        return result;
+
+    }
+    // 임시변수를 없애고 질의 메소드로 대체 !
+    private double getTotalCharge(){
+        double result = 0;
+        Enumeration rentals = _rentals.elements();
+        while(rentals.hasMoreElements()){
+            Rental each = (Rental) rentals.nextElement();
+            result += each.getCharge();
+        }
+        return result;
+    }
+</pre>
+
+이제 비슷하게 frequentRenterPoints 변수도 변경해 보겠다.
+
+바뀌기 전 
+<pre>
+    public String statement(){
+
+        int frequentRenterPoints =0;
+        Enumeration rentals = _rentals.elements();
+        String result = getName()+ " 고객님의 대여 기록\n";
+
+        while(rentals.hasMoreElements()){
+            Rental each = (Rental) rentals.nextElement();
+
+            frequentRenterPoints += each.getFrequentRenterPoints();
+
+            // 대여하는 비디오의 정보와 대여료를 출력
+            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(getTotalCharge())+'\n';
+
+        }
+
+        result += "누적 대여료:" + String.valueOf(getTotalCharge())+'\n';
+        result += "적립 포인트:" + String.valueOf(frequentRenterPoints);
+        return result;
+
+    }
+</pre>
+
+
+바뀐 후 
+<pre>
+    public String statement(){
+
+        Enumeration rentals = _rentals.elements();
+        String result = getName()+ " 고객님의 대여 기록\n";
+
+        while(rentals.hasMoreElements()){
+
+            Rental each = (Rental) rentals.nextElement();
+
+
+            // 대여하는 비디오의 정보와 대여료를 출력
+            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(getTotalCharge())+'\n';
+
+        }
+
+        result += "누적 대여료:" + String.valueOf(getTotalCharge())+'\n';
+        result += "적립 포인트:" + String.valueOf(getTotalFrequentRenterPoints());
+        return result;
+
+    }
+    private int getTotalFrequentRenterPoints(){
+        int result = 0;
+        Enumeration rentals = _rentals.elements();
+        while(rentals.hasMoreElements()){
+            Rental each = (Rental) rentals.nextElement();
+            result += each.getFrequentRenterPoints();
+        }
+        return result;
+    }
+</pre>

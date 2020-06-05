@@ -65,8 +65,9 @@ public class Customer {
      */
 
     public String statement(){
-        double totalAmount =0;
-        int frequentRenterPoints =0;
+        // totalAmount 변수를  getTotalCharge 메소드로 교체
+        // double totalAmount =0;
+        // int frequentRenterPoints =0;
         Enumeration rentals = _rentals.elements();
         String result = getName()+ " 고객님의 대여 기록\n";
 
@@ -80,19 +81,44 @@ public class Customer {
             // #3 불필요한 변수를 제거한다.
             // thisAmount = each.getCharge();
 
+            /*
             // 적립 포인트를 1 포인트 증가
             frequentRenterPoints++;
             // 최신물을 2일 이상 대여할 경우 보너스 포인트 지급
             if((each.getMovie().getPriceCode()  == Movie.NEW_RELEASE) && each.getDaysRented() >1)
                 frequentRenterPoints++;
+            */
+
+            // 위의 적립 포인트 메소드를 Rental로 이동 후 코드
+            // frequentRenterPoints += each.getFrequentRenterPoints();
 
             // 대여하는 비디오의 정보와 대여료를 출력
-            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(each.getCharge())+'\n';
-            totalAmount+=each.getCharge();
+            result += '\t'+each.getMovie().getTitle()+'\t'+String.valueOf(getTotalCharge())+'\n';
 
         }
-        result += "누적 대여료:" + String.valueOf(totalAmount)+'\n';
-        result += "적립 포인트:" + String.valueOf(frequentRenterPoints);
+
+        result += "누적 대여료:" + String.valueOf(getTotalCharge())+'\n';
+        result += "적립 포인트:" + String.valueOf(getTotalFrequentRenterPoints());
+        return result;
+
+    }
+    // 임시변수를 없애고 질의 메소드로 대체 !
+    private double getTotalCharge(){
+        double result = 0;
+        Enumeration rentals = _rentals.elements();
+        while(rentals.hasMoreElements()){
+            Rental each = (Rental) rentals.nextElement();
+            result += each.getCharge();
+        }
+        return result;
+    }
+    private int getTotalFrequentRenterPoints(){
+        int result = 0;
+        Enumeration rentals = _rentals.elements();
+        while(rentals.hasMoreElements()){
+            Rental each = (Rental) rentals.nextElement();
+            result += each.getFrequentRenterPoints();
+        }
         return result;
     }
     /* Before Renaming variable
@@ -146,3 +172,4 @@ public class Customer {
     }
      */
 }
+//52p 부터
